@@ -1,0 +1,22 @@
+{
+  "name": "crypto-keygen",
+  "version": "1.0.0",
+  "description": "blockchein generator",
+  "main": "index.js",
+  "scripts": {
+    "test": "console.log(\"Hello, World\")"
+  },
+  "repository": {
+    "type": "git",
+    "url": "crypto-keygen"
+  },
+  "author": "EliseiFox",
+  "license": "ISC",
+  "dependencies": {
+    "@scure/bip32": "^2.2.0",
+    "@scure/bip39": "^2.2.0",
+    "@solana/web3.js": "^1.98.4",
+    "bitcoinjs-lib": "^7.0.1",
+    "ethers": "^6.16.0"
+  }
+}
