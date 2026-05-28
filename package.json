@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "blockchein generator",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "console.log(\"Hello, World\")"
   },

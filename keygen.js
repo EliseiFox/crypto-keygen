@@ -6,6 +6,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { ethers } from 'ethers';
 import { Keypair } from '@solana/web3.js';
 
+
 const mnemonic128 = bip39.generateMnemonic(wordlist, 128);
 
 console.log('Generated 12-word phrase:');
@@ -109,3 +110,11 @@ console.log('Ethereum/EVM (m/44\'/60\'/0\'/0/0): ', getEthereumAddress(masterNod
 console.log('Bitcoin Segwit (m/84\'/0\'/0\'/0/0): ', getBitcoinSegwitAddress(masterNode));
 console.log('Solana (m/44\'/501\'/0\'/0\'):        ', getSolanaAddress(masterNode));
 console.log('---------------------------------------------');
+
+
+export default function mnemonicJsonGen() {
+    const mnemonic = bip39.generateMnemonic(wordlist, 128);
+    return {
+        mnemonic: mnemonic
+    };
+}

@@ -1,14 +1,16 @@
-const express = require('express');
-const path = require('path');
+import express from 'express'
 const app = express();
 const PORT = 3000;
 
+import mnemonicGen from './keygen.js'; 
 
 app.use(express.static('public'));
 
 app.get('/api/data', (req, res) => {
-    res.json({ message: "This is response frome Node.js server!" });
-    console.log("request from client.")
+    const mnemonic = mnemonicGen();
+    console.log(mnemonic);
+
+    res.json(mnemonic);
 });
 
 app.listen(PORT, () => {
