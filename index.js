@@ -2,6 +2,9 @@ import * as bip39 from '@scure/bip39';
 import { wordlist } from '@scure/bip39/wordlists/english.js';
 
 import { HDKey } from '@scure/bip32';
+import * as bitcoin from 'bitcoinjs-lib';
+import { ethers } from 'ethers';
+import { Keypair } from '@solana/web3.js';
 
 const mnemonic128 = bip39.generateMnemonic(wordlist, 128);
 
@@ -61,3 +64,48 @@ console.log('masterNode 12:');
 console.log(masterNode);
 console.log('--------------------------------------------------');
 console.log();
+
+// ETHEREUM ADDRESS GENERATION
+function getEthereumAddress(masterKey) {
+    const path = "m/44'/60'/0'/0/0";
+    const childNode = masterKey.derive(path);
+    
+    // Format the private key to hexadecimal
+    const privateKeyHex = Buffer.from(childNode.privateKey).toString('hex');
+    const wallet = new ethers.Wallet(privateKeyHex);
+    
+    return wallet.address;
+}
+
+
+// BITCOIN ADDRESS GENERATION
+function getBitcoinSegwitAddress(masterKey) {
+    const path = "m/84'/0'/0'/0/0";
+    const childNode = masterKey.derive(path);
+    
+    // Public key is required for address generation
+    const { address } = bitcoin.payments.p2wpkh({
+        pubkey: Buffer.from(childNode.publicKey),
+        network: bitcoin.networks.bitcoin
+    });
+    
+    return address;
+}
+
+// SOLANA ADDRESS GENERATION
+function getSolanaAddress(masterKey) {
+    const path = "m/44'/501'/0'/0'";
+    const childNode = masterKey.derive(path);
+    
+    // Solana uses the Ed25519 curve; Keypair is created from the session private key (seed)
+    const keypair = Keypair.fromSeed(childNode.privateKey);
+    
+    return keypair.publicKey.toBase58();
+}
+
+
+console.log('--- Generating addresses from seed phrase ---');
+console.log('Ethereum/EVM (m/44\'/60\'/0\'/0/0): ', getEthereumAddress(masterNode));
+console.log('Bitcoin Segwit (m/84\'/0\'/0\'/0/0): ', getBitcoinSegwitAddress(masterNode));
+console.log('Solana (m/44\'/501\'/0\'/0\'):        ', getSolanaAddress(masterNode));
+console.log('---------------------------------------------');
