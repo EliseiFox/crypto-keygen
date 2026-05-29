@@ -50,7 +50,7 @@ console.log();
 //---------------------------------------------------------------------
 //---------------------------------------------------------------------
 
-
+/*
 const seed = bip39.mnemonicToSeedSync(mnemonic128);
 
 console.log('--------------------------------------------------');
@@ -64,7 +64,7 @@ const masterNode = HDKey.fromMasterSeed(seed);
 console.log('masterNode 12:');
 console.log(masterNode);
 console.log('--------------------------------------------------');
-console.log();
+console.log(); */
 
 // ETHEREUM ADDRESS GENERATION
 function getEthereumAddress(masterKey) {
@@ -80,7 +80,7 @@ function getEthereumAddress(masterKey) {
 
 
 // BITCOIN ADDRESS GENERATION
-function getBitcoinSegwitAddress(masterKey) {
+function getBitcoinAddress(masterKey) {
     const path = "m/84'/0'/0'/0/0";
     const childNode = masterKey.derive(path);
     
@@ -104,17 +104,37 @@ function getSolanaAddress(masterKey) {
     return keypair.publicKey.toBase58();
 }
 
-
+/*
 console.log('--- Generating addresses from seed phrase ---');
 console.log('Ethereum/EVM (m/44\'/60\'/0\'/0/0): ', getEthereumAddress(masterNode));
-console.log('Bitcoin Segwit (m/84\'/0\'/0\'/0/0): ', getBitcoinSegwitAddress(masterNode));
+console.log('Bitcoin Segwit (m/84\'/0\'/0\'/0/0): ', getBitcoinAddress(masterNode));
 console.log('Solana (m/44\'/501\'/0\'/0\'):        ', getSolanaAddress(masterNode));
-console.log('---------------------------------------------');
+console.log('---------------------------------------------'); */
 
 
 export default function mnemonicJsonGen() {
+    
     const mnemonic = bip39.generateMnemonic(wordlist, 128);
+
+    const seed = bip39.mnemonicToSeedSync(mnemonic);
+
+    console.log('--------------------------------------------------');
+    console.log('Seed 12:');
+    console.log(seed);
+    console.log('--------------------------------------------------');
+    console.log();
+
+    const masterNode = HDKey.fromMasterSeed(seed);
+
+
+    const ethereumAddress =  getEthereumAddress(masterNode);
+    const bitcoinAddress = getBitcoinAddress(masterNode);
+    const solanaAddress = getSolanaAddress(masterNode);
+    
     return {
-        mnemonic: mnemonic
+        mnemonic: mnemonic,
+        ethereumAddress: ethereumAddress,
+        bitcoinAddress: bitcoinAddress,
+        solanaAddress: solanaAddress
     };
 }

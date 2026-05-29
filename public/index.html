@@ -4,10 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BIP39 Phrase Generator</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Crypto KeyGen</h1>
-    <p id="response">response</p>
+    <h1 style="text-align: center;">BIP39 Phrase generator</h1>
+    <br/>
+    <div id="main">
+        <div id="key-fiald">
+            <div class="key">Mnemonic</div>
+            <div class="key">Bitcoin Address (m/84'/0'/0'/0/0)</div>
+            <div class="key">Ethereum Address (m/44'/60'/0'/0/0)</div>
+            <div class="key">Solana Address (m/44'/60'/0'/0/0)</div>
+        </div>
+        <div id="value-fiald">
+            <div class="value" id="mnemonic">-</div>
+            <div class="value" id="bitcoinAddress">-</div>
+            <div class="value" id="ethereumAddress">-</div>
+            <div class="value" id="solanaAddress">-</div>
+
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>

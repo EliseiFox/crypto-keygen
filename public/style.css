@@ -1,0 +1,32 @@
+#main {
+    display: flex;
+    margin-left: 10%;
+    margin-right: 10%;
+}
+
+#key-fiald {
+    width: 25%;
+    margin: 10px;
+    margin-right: 20px;
+}
+
+#value-fiald {
+    flex: auto;
+    margin: 10px;
+}
+
+.key {
+    display: flex;
+    justify-content: end;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    
+    font-weight: bold;
+}
+
+.value {
+    display: flex;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
