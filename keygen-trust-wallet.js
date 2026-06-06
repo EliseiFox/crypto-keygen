@@ -24,7 +24,7 @@ const COIN_MAP = {
     'SHIB': { coin: 'ethereum', type: 60 },
 };
 
-async function getDetailedWalletData({
+export async function getDetailedWalletData({
     mnemonic,
     coinKey,
     account = 0,

@@ -11,41 +11,68 @@
     <br/>
 
     <div id="settings">
-        <select id="phrase-size">
-            <option value="128">12</option>
-            <option value="160">15</option>
-            <option value="192">18</option>
-            <option value="224">21</option>
-            <option value="256">24</option>
-        </select>
-        <select id="languages">
-            <option value="english">English</option>
-            <option value="japanese">日本語</option>
-            <option value="spanish">Español</option>
-            <option value="simplifiedChinese">中文(简体)</option>
-            <option value="traditionalChinese">中文(繁體)</option>
-            <option value="french">Français</option>
-            <option value="italian">Italiano</option>
-            <option value="korean">한국어</option>
-            <option value="czech">Čeština</option>
-            <option value="portuguese">Português</option>
-        </select>
-        <button id="generate-btn">Generate</button>
+        <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
+            <div style="display: flex; gap: 10px;">
+                <select id="phrase-size">
+                    <option value="128">12 words</option>
+                    <option value="160">15 words</option>
+                    <option value="192">18 words</option>
+                    <option value="224">21 words</option>
+                    <option value="256" selected>24 words</option>
+                </select>
+                <select id="languages">
+                    <option value="english">English</option>
+                    <option value="japanese">日本語</option>
+                    <option value="spanish">Español</option>
+                    <option value="simplifiedChinese">中文(简体)</option>
+                    <option value="traditionalChinese">中文(繁體)</option>
+                    <option value="french">Français</option>
+                    <option value="italian">Italiano</option>
+                    <option value="korean">한국어</option>
+                    <option value="czech">Čeština</option>
+                    <option value="portuguese">Português</option>
+                </select>
+                <button id="generate-btn">Generate</button>
+                <button id="import-btn">Import</button>
+            </div>
+            <textarea id="mnemonic-input" placeholder="Paste your mnemonic here to import" style="width: 500px; height: 60px;"></textarea>
+        </div>
     </div>
 
-    <div id="main">
-        <div class="key">Mnemonic</div>
-        <div class="value" id="mnemonic">-</div>
+    <div id="coin-selection-container" style="text-align: center; margin-top: 20px;">
+        <p>Select Coins (Hold Ctrl/Cmd to select multiple):</p>
+        <select id="coin-select" multiple style="width: 300px; height: 150px;">
+            <optgroup label="Bitcoin Variants">
+                <option value="BTC" data-variant="native" selected>Bitcoin (Native SegWit)</option>
+                <option value="BTC" data-variant="nested">Bitcoin (Nested SegWit)</option>
+                <option value="BTC" data-variant="legacy">Bitcoin (Legacy)</option>
+                <option value="BTC" data-variant="taproot">Bitcoin (Taproot)</option>
+            </optgroup>
+            <optgroup label="Other Coins">
+                <option value="ETH" selected>Ethereum</option>
+                <option value="SOL">Solana</option>
+                <option value="TRX">Tron</option>
+                <option value="DOGE">Dogecoin</option>
+                <option value="BNB">Binance Smart Chain</option>
+                <option value="XRP">XRP</option>
+                <option value="ADA">Cardano</option>
+                <option value="TON">TON</option>
+                <option value="DOT">Polkadot</option>
+                <option value="MATIC">Polygon</option>
+                <option value="AVAX">Avalanche</option>
+            </optgroup>
+        </select>
+    </div>
 
-        <div class="key">Bitcoin Address (m/84'/0'/0'/0/0)</div>
-        <div class="value" id="bitcoinAddress">-</div>
-
-        <div class="key">Ethereum Address (m/44'/60'/0'/0/0)</div>
-        <div class="value" id="ethereumAddress">-</div>
-
-        <div class="key">Solana Address (m/44'/60'/0'/0/0)</div>
-        <div class="value" id="solanaAddress">-</div>
-    </div> 
+    <div id="results-container">
+        <div id="mnemonic-info" class="info-section">
+            <div class="key">Mnemonic</div>
+            <div class="value" id="mnemonic">-</div>
+            <div class="key">Seed</div>
+            <div class="value" id="seed">-</div>
+        </div>
+        <div id="wallets-display"></div>
+    </div>
 
     <a href="https://github.com/eliseifox/crypto-keygen" aria-label="View source on GitHub">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
