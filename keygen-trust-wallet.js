@@ -55,7 +55,7 @@ const COIN_MAP = {
     'BTC': { coin: 'bitcoin', type: 0 },
     'ETH': { coin: 'ethereum', type: 60 },
     'USDT': { coin: 'ethereum', type: 60 },
-    'BNB': { coin: 'binanceSmartChain', type: 60 },
+    'BNB': { coin: 'binance', type: 60 },
     'XRP': { coin: 'xrp', type: 144 },
     'USDC': { coin: 'ethereum', type: 60 },
     'SOL': { coin: 'solana', type: 501 },
