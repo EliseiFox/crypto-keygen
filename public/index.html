@@ -40,28 +40,66 @@
     </div>
 
     <div id="coin-selection-container" style="text-align: center; margin-top: 20px;">
-        <p>Select Coins (Hold Ctrl/Cmd to select multiple):</p>
-        <select id="coin-select" multiple style="width: 300px; height: 150px;">
-            <optgroup label="Bitcoin Variants">
-                <option value="BTC" data-variant="native" selected>Bitcoin (Native SegWit)</option>
-                <option value="BTC" data-variant="nested">Bitcoin (Nested SegWit)</option>
-                <option value="BTC" data-variant="legacy">Bitcoin (Legacy)</option>
-                <option value="BTC" data-variant="taproot">Bitcoin (Taproot)</option>
+        <p>Select Coin:</p>
+        <select id="coin-select" style="width: 300px; height: 40px;">
+            <optgroup label="Main Networks">
+                <option value="BTC">Bitcoin (BTC)</option>
+                <option value="ETH">Ethereum (ETH)</option>
+                <option value="SOL">Solana (SOL)</option>
+                <option value="BNB">Binance Smart Chain (BSC)</option>
+                <option value="TRX">Tron (TRX)</option>
             </optgroup>
-            <optgroup label="Other Coins">
-                <option value="ETH" selected>Ethereum</option>
-                <option value="SOL">Solana</option>
-                <option value="TRX">Tron</option>
-                <option value="DOGE">Dogecoin</option>
-                <option value="BNB">Binance Smart Chain</option>
+
+            <optgroup label="Stablecoins">
+                <option value="USDT">Tether (USDT ERC-20)</option>
+                <option value="USDC">USD Coin (USDC ERC-20)</option>
+            </optgroup>
+
+            <optgroup label="Altcoins & Layer 1">
                 <option value="XRP">XRP</option>
-                <option value="ADA">Cardano</option>
+                <option value="ADA">Cardano (ADA)</option>
                 <option value="TON">TON</option>
-                <option value="DOT">Polkadot</option>
-                <option value="MATIC">Polygon</option>
-                <option value="AVAX">Avalanche</option>
+                <option value="DOT">Polkadot (DOT)</option>
+                <option value="NEAR">NEAR Protocol</option>
+                <option value="ICP">Internet Computer (ICP)</option>
+                <option value="APT">Aptos (APT)</option>
+                <option value="DOGE">Dogecoin (DOGE)</option>
+            </optgroup>
+
+            <optgroup label="EVM Networks">
+                <option value="MATIC">Polygon (MATIC)</option>
+                <option value="AVAX">Avalanche (C-Chain)</option>
+            </optgroup>
+
+            <optgroup label="Tokens">
+                <option value="LINK">Chainlink (LINK)</option>
+                <option value="SHIB">Shiba Inu (SHIB)</option>
+                <option value="RNDR">Render (RNDR)</option>
             </optgroup>
         </select>
+    </div>
+
+    <div id="derivation-settings" style="text-align: center; margin-top: 20px; display: flex; flex-direction: column; gap: 10px; align-items: center;">
+        <p>Advanced Derivation Settings:</p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+            <div>
+                <label for="purpose-select">Purpose:</label>
+                <select id="purpose-select">
+                    <option value="native">BIP84 (Native SegWit)</option>
+                    <option value="nested">BIP49 (Nested SegWit)</option>
+                    <option value="legacy">BIP44 (Legacy)</option>
+                    <option value="taproot">BIP86 (Taproot)</option>
+                </select>
+            </div>
+            <div>
+                <label for="account-input">Account:</label>
+                <input type="number" id="account-input" value="0" min="0" style="width: 60px;">
+            </div>
+            <div>
+                <label for="change-input">External:</label>
+                <input type="number" id="change-input" value="0" min="0" style="width: 60px;">
+            </div>
+        </div>
     </div>
 
     <div id="results-container">

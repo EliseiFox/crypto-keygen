@@ -1,4 +1,54 @@
 import { initWasm } from '@trustwallet/wallet-core';
+import * as bip39 from '@scure/bip39';
+
+import { wordlist as czech } from '@scure/bip39/wordlists/czech.js';
+import { wordlist as english} from '@scure/bip39/wordlists/english.js';
+import { wordlist as french } from '@scure/bip39/wordlists/french.js';
+import { wordlist as italian } from '@scure/bip39/wordlists/italian.js';
+import { wordlist as japanese } from '@scure/bip39/wordlists/japanese.js';
+import { wordlist as korean } from '@scure/bip39/wordlists/korean.js';
+import { wordlist as portuguese } from '@scure/bip39/wordlists/portuguese.js';
+import { wordlist as simplifiedChinese } from '@scure/bip39/wordlists/simplified-chinese.js';
+import { wordlist as spanish } from '@scure/bip39/wordlists/spanish.js';
+import { wordlist as traditionalChinese } from '@scure/bip39/wordlists/traditional-chinese.js';
+
+const wordlists = {
+    czech,
+    english,
+    french,
+    italian,
+    japanese,
+    korean,
+    portuguese,
+    simplifiedChinese,
+    spanish,
+    traditionalChinese
+};
+
+/**
+ * Normalizes a string by:
+ * 1. Removing extra spaces (trim and internal multiple spaces)
+ * 2. Converting to lowercase
+ * 3. NFKD normalization
+ */
+export function normalizeString(str) {
+    if (typeof str !== 'string') return '';
+    return str
+        .trim()
+        .replace(/\s+/g, ' ')
+        .toLowerCase()
+        .normalize('NFKD');
+}
+
+/**
+ * Generates a mnemonic phrase based on size and language.
+ * Only necessary logic transferred from keygen.js.
+ */
+export function mnemonicJsonGen(mnemonicSize, language) {
+    const wordlist = wordlists[language] || english;
+    const mnemonic = bip39.generateMnemonic(wordlist, mnemonicSize);
+    return { mnemonic };
+}
 
 // Configuration map for supported coins
 const COIN_MAP = {
@@ -24,77 +74,88 @@ const COIN_MAP = {
     'SHIB': { coin: 'ethereum', type: 60 },
 };
 
+/**
+ * Generates detailed wallet data for a given coin using Trust Wallet Core.
+ */
 export async function getDetailedWalletData({
     mnemonic,
+    mnemonicSize,
+    language,
     coinKey,
     account = 0,
-    isInternal = false,
-    variant = 'nativeSegwit' // Options: legacy, nested, native, taproot
+    change = 0,
+    variant = 'native' // Options: legacy, nested, native, taproot
 }) {
-    // Initialize Wasm module
     const core = await initWasm();
-    const { HDWallet, CoinType, Purpose, HDVersion, AnyAddress, Curve } = core;
+    const { HDWallet, CoinType, Purpose, HDVersion, AnyAddress, Curve, Mnemonic } = core;
 
-    // 1. Initialize HDWallet using the provided mnemonic
-    const wallet = HDWallet.createWithMnemonic(mnemonic, "");
+    mnemonic = normalizeString(mnemonic);
+
+    console.log("str1: "+mnemonic);
+
+
+    if (mnemonic) {
+        // Validate imported mnemonic
+        if (!bip39.validateMnemonic(mnemonic, wordlists[language])) {
+            throw new Error('Invalid mnemonic phrase');
+        }
+    } else {
+        // Generate a new mnemonic with language support
+        const baseMnemonicData = mnemonicJsonGen(mnemonicSize, language);
+        mnemonic = baseMnemonicData.mnemonic;
+        console.log("str1: "+mnemonic)
+    }
+
+    const seed = bip39.mnemonicToEntropy(mnemonic, wordlists[language])
+    console.log("str2 "+seed.toString('hex'))
+    console.log("str3 "+Buffer.from(seed).toString('hex'))
+    
+
+    const wallet = HDWallet.createWithEntropy(seed, "");
 
     const config = COIN_MAP[coinKey];
     if (!config) throw new Error(`Coin ${coinKey} not supported`);
     
     const coin = CoinType[config.coin];
-    const change = isInternal ? 1 : 0;
 
-    // 2. Determine Purpose (BIP) and HD Key Version (mostly for Bitcoin)
     let purpose = Purpose.bip44;
-    let hdVersion = HDVersion.xprv; // Default xprv
+    let hdVersion = HDVersion.xprv;
 
-    if (coinKey === 'BTC') {
-        switch (variant) {
-            case 'legacy': 
-                purpose = Purpose.bip44; 
-                hdVersion = HDVersion.xprv; // Starts with xprv
-                break;
-            case 'nested': 
-                purpose = Purpose.bip49; 
-                hdVersion = HDVersion.yprv; // Starts with yprv
-                break;
-            case 'native': 
-                purpose = Purpose.bip84; 
-                hdVersion = HDVersion.zprv; // Starts with zprv
-                break;
-            case 'taproot': 
-                purpose = Purpose.bip86; 
-                hdVersion = HDVersion.xprv; // Taproot standard uses xprv/zprv
-                break;
-        }
+    switch (variant) {
+        case 'legacy': 
+            purpose = Purpose.bip44; 
+            hdVersion = HDVersion.xprv;
+            break;
+        case 'nested': 
+            purpose = Purpose.bip49; 
+            hdVersion = HDVersion.yprv;
+            break;
+        case 'native': 
+            purpose = Purpose.bip84; 
+            hdVersion = HDVersion.zprv;
+            break;
+        case 'taproot': 
+            purpose = Purpose.bip86; 
+            hdVersion = HDVersion.xprv;
+            break;
     }
 
-    // 3. Construct the Derivation Path
-    // Wallet Core follows: m / purpose' / coin' / account' / change / index
     const purposeValue = (variant === 'native') ? 84 : (variant === 'nested' ? 49 : (variant === 'taproot' ? 86 : 44));
     const derivationPath = `m/${purposeValue}'/${config.type}'/${account}'/${change}`;
 
-    // 4. Aggregate Wallet Data
     const result = {
-        mnemonic: wallet.mnemonic(),
+        mnemonic: mnemonic,
         seed: Buffer.from(wallet.seed()).toString('hex'),
-        // BIP32 Root Key (Master Key for the Secp256k1 curve)
-        rootKey: wallet.getMasterKey(Curve.secp256k1).data().toString(), 
-        // Account-level Extended Private Key (e.g., xprv/yprv/zprv)
+        rootKey: Buffer.from(seed).toString('hex'), 
         extendedPrivateKey: wallet.getExtendedPrivateKey(purpose, coin, hdVersion),
         derivationPath: derivationPath,
         addresses: []
     };
 
-    // 5. Generate 10 addresses based on the derivation path indices
     for (let i = 0; i < 10; i++) {
         const fullPath = `${derivationPath}/${i}`;
-        
-        // Derive private key for the specific path
         const privateKey = wallet.getKey(coin, fullPath);
-        // Get public key from private key
         const publicKey = privateKey.getPublicKey(coin);
-        // Generate formatted address string
         const address = AnyAddress.createWithPublicKey(publicKey, coin).description();
 
         result.addresses.push({
@@ -106,29 +167,3 @@ export async function getDetailedWalletData({
 
     return result;
 }
-
-// USAGE EXAMPLES
-const mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
-
-// Example 1: Bitcoin Native SegWit (bc1q...)
-getDetailedWalletData({
-    mnemonic: mnemonic,
-    coinKey: 'BTC',
-    variant: 'native',
-    account: 0
-}).then(data => {
-    console.log("--- BITCOIN NATIVE SEGWIT DATA ---");
-    console.log("Extended Key:", data.extendedPrivateKey);
-    console.log("Path:", data.derivationPath);
-    console.log("Addresses:", data.addresses);
-}).catch(console.error);
-
-// Example 2: Ethereum (0x...)
-getDetailedWalletData({
-    mnemonic: mnemonic,
-    coinKey: 'ETH',
-    account: 0
-}).then(res => {
-    console.log("\n--- ETHEREUM ADDRESS INDEX 0 ---");
-    console.log("Address:", res.addresses[0].address);
-});

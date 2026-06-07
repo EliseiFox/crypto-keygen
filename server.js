@@ -2,8 +2,7 @@ import express from 'express'
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-import mnemonicGen from './keygen.js'; 
-import { getDetailedWalletData } from './keygen-trust-wallet.js';
+import { getDetailedWalletData, mnemonicJsonGen as mnemonicGen } from './keygen-trust-wallet.js';
 import { initWasm } from '@trustwallet/wallet-core';
 
 // Middleware to parse JSON bodies
@@ -13,42 +12,30 @@ app.use(express.static('public'));
 
 app.post('/api/data', async (req, res) => {
     try {
-        const { mnemonicSize, language, mnemonic: importedMnemonic, coins } = req.body;
-        console.log('Received request for:', coins);
+        const { mnemonicSize, language, mnemonic: importedMnemonic, coin, derivation } = req.body;
+        console.log('Received request for:', coin.coinKey);
+
+
+        if(derivation.change<0) {console.log(333)}
+        console.log(derivation.change);
         
-        let mnemonic = importedMnemonic;
-
-        const core = await initWasm();
-        const { HDWallet, Mnemonic } = core;
-
-        if (mnemonic) {
-            // Validate imported mnemonic
-            if (!Mnemonic.isValid(mnemonic)) {
-                return res.status(400).json({ error: 'Invalid mnemonic phrase' });
-            }
-        } else {
-            // Generate a new mnemonic using keygen.js to support languages
-            const baseMnemonicData = mnemonicGen(mnemonicSize, language);
-            mnemonic = baseMnemonicData.mnemonic;
-        }
-
-        const results = [];
-        for (const coinReq of coins) {
-            const data = await getDetailedWalletData({
-                mnemonic: mnemonic,
-                coinKey: coinReq.coinKey,
-                variant: coinReq.variant || 'native',
-                account: 0
-            });
-            data.coinKey = coinReq.coinKey;
-            data.variant = coinReq.variant;
-            results.push(data);
-        }
+        const data = await getDetailedWalletData({
+            mnemonic: importedMnemonic,
+            mnemonicSize: mnemonicSize,
+            language: language,
+            coinKey: coin.coinKey,
+            variant: derivation?.purpose || coin.variant || 'native',
+            account: derivation?.account || 0,
+            change: derivation?.change || 0,
+            startIndex: derivation?.startIndex || 0
+        });
+        data.coinKey = coin.coinKey;
+        data.variant = derivation?.purpose || coin.variant;
 
         res.json({
-            mnemonic: mnemonic,
-            seed: results[0].seed,
-            results: results
+            mnemonic: data.mnemonic,
+            seed: data.seed,
+            result: data
         });
     } catch (error) {
         console.error('Error generating data:', error);
